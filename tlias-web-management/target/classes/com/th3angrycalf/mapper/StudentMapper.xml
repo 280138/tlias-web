@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.th3angrycalf.mapper.StudentMapper">
+
+    <!--添加学员信息 -->
+    <insert id="add">
+        insert into student(name, no, gender, phone, id_card, is_college, address, degree, graduation_date, clazz_id, violation_count, violation_score, create_time, update_time)
+        values (#{name}, #{no}, #{gender}, #{phone}, #{idCard}, #{isCollege}, #{address}, #{degree}, #{graduationDate}, #{clazzId}, #{violationCount}, #{violationScore}, #{createTime}, #{updateTime})
+    </insert>
+
+    <!--根据ID修改学生信息 -->
+    <!--set标签：1.会自动生成set关键字 2.会自动删除逗号-->
+    <update id="update">
+    update student
+    <set>
+        <if test="name != null and name != ''">
+            name = #{name},
+        </if>
+        <if test="no != null and no != ''">
+            no = #{no},
+        </if>
+        <if test="gender != null">
+            gender = #{gender},
+        </if>
+        <if test="phone != null and phone != ''">
+            phone = #{phone},
+        </if>
+        <if test="idCard != null and idCard != ''">
+            id_card = #{idCard},
+        </if>
+        <if test="isCollege != null">
+            is_college = #{isCollege},
+        </if>
+        <if test="address != null and address != ''">
+            address = #{address},
+        </if>
+        <if test="degree != null">
+            degree = #{degree},
+        </if>
+        <if test="graduationDate != null">
+            graduation_date = #{graduationDate},
+        </if>
+        <if test="clazzId != null">
+            clazz_id = #{clazzId},
+        </if>
+        <if test="violationCount != null">
+            violation_count = #{violationCount},
+        </if>
+        <if test="violationScore != null">
+            violation_score = #{violationScore},
+        </if>
+        <if test="updateTime != null">
+            update_time = #{updateTime},
+        </if>
+    </set>
+        where id = #{id}
+    </update>
+
+    <!--批量删除学生信息 -->
+    <delete id="deleteById">
+        delete from student where id in
+        <foreach item="id" collection="list" separator="," close=")" open="(" >
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--分页查询 -->
+    <select id="page" resultType="com.th3angrycalf.pojo.Student">
+        select s.*, c.name clazzName from student s left join clazz c on s.clazz_id = c.id
+        <where>
+            <if test="name != null and name != ''">
+                s.name like concat('%',#{name},'%')
+            </if>
+            <if test="degree != null">
+                and s.degree = #{degree}
+            </if>
+            <if test="clazzId != null">
+                and s.clazz_id = #{clazzId}
+            </if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <!--统计班级学生信息 -->
+    <select id="getStudentCountData" resultType="java.util.Map">
+        SELECT
+            c.name AS name,
+            COUNT(s.id) AS num
+        FROM clazz c
+        LEFT JOIN student s ON c.id = s.clazz_id
+        GROUP BY c.id, c.name
+        ORDER BY c.id
+    </select>
+    <!--   <select id="getStudentCountData" resultType="java.util.Map">
+           select (case clazz_id when 1 then 'JavaEE就业163期'
+                                 when 2 then '前端就业90期'
+                                 when 3 then 'JavaEE就业165期'
+                                 when 4 then 'JavaEE就业166期'
+                                 else '其它' end) name,
+                  count(*) num
+           from student
+           group by clazz_id
+       </select>-->
+
+    <select id="countStudentDegreeData" resultType="java.util.Map">
+        select (case when degree = 1 then '初中'
+                     when degree = 2 then '高中'
+                     when degree = 3 then '大专'
+                     when degree = 4 then '本科'
+                     when degree = 5 then '硕士'
+                     when degree = 6 then '博士' end) as name,
+               count(*) as value
+        from student
+        group by degree
+    </select>
+</mapper>
