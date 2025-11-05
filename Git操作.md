@@ -23,6 +23,8 @@
 把"本地"master分支推送到远程仓库origin中同名分支		git push origin master
 将本地master推送到远程main						git push origin master:main
 
+修改本地分支名为main												git branch -m main
+
 ## vim操作备忘
 
 i	进入插入模式
